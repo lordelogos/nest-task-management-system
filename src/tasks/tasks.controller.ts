@@ -7,64 +7,78 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiAcceptedResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 import { TaskEntity } from './entitites/task.entity';
 import { TasksService } from './tasks.service';
-
-// TODO: get `id` from requests when I set up AuthGuards
 
 @Controller('tasks')
 @ApiTags('Tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @Post(':userId')
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiCreatedResponse({ type: TaskEntity })
-  create(
-    @Param('userId') userId: string,
-    @Body() createTaskDto: CreateTaskDto,
-  ) {
-    return this.tasksService.create(createTaskDto, +userId);
+  create(@Req() req: Request, @Body() createTaskDto: CreateTaskDto) {
+    return this.tasksService.create(createTaskDto, (req.user as UserEntity).id);
   }
 
-  @Get(':userId')
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ isArray: true, type: TaskEntity })
-  findAll(@Param('userId') userId: string) {
-    return this.tasksService.findAll(+userId);
+  findAll(@Req() req: Request) {
+    return this.tasksService.findAll((req.user as UserEntity).id);
   }
 
-  @Get(':userId/:id')
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: TaskEntity })
-  findOne(
-    @Param('userId') userId: string,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.tasksService.findOne(id, +userId);
+  findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    return this.tasksService.findOne(id, (req.user as UserEntity).id);
   }
 
-  @Patch(':userId/:id')
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiAcceptedResponse({ type: TaskEntity })
   update(
-    @Param('userId') userId: string,
+    @Req() req: Request,
+
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    return this.tasksService.update(id, updateTaskDto, +userId);
+    return this.tasksService.update(
+      id,
+      updateTaskDto,
+      (req.user as UserEntity).id,
+    );
   }
 
-  @Delete(':userId/:id')
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: TaskEntity })
   remove(
-    @Param('userId') userId: string,
+    @Req() req: Request,
+
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.tasksService.remove(id, +userId);
+    return this.tasksService.remove(id, (req.user as UserEntity).id);
   }
 }

@@ -19,6 +19,7 @@ export class TasksService {
   }
 
   findOne(id: number, userId: number) {
+    console.log({ id, userId });
     return this.databaseService.task.findFirst({
       where: { id, userId },
     });
