@@ -8,7 +8,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiAcceptedResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 import { TaskEntity } from './entitites/task.entity';
 import { TasksService } from './tasks.service';
@@ -45,7 +50,7 @@ export class TasksController {
   }
 
   @Patch(':userId/:id')
-  @ApiOkResponse({ type: TaskEntity })
+  @ApiAcceptedResponse({ type: TaskEntity })
   update(
     @Param('userId') userId: string,
     @Param('id', ParseIntPipe) id: number,
