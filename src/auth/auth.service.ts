@@ -6,6 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { DatabaseService } from 'src/database/database.service';
 import { AuthEntity } from './entities/auth.entity';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
       throw new NotFoundException(`No user found for email: ${email}`);
     }
 
-    const isPasswordValid = user.password === password;
+    const isPasswordValid = await compare(password, user.password);
 
     // handle wrong password
     if (!isPasswordValid) {
