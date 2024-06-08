@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 
 @Injectable()
 export class TasksService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  create(createTaskDto: Prisma.TaskCreateInput, userId: number) {
+  create(createTaskDto: CreateTaskDto, userId: number) {
     return this.databaseService.task.create({
-      data: { ...createTaskDto, userId } as Prisma.TaskCreateInput, // confirm this
+      data: { ...createTaskDto, userId },
     });
   }
 
@@ -24,7 +24,7 @@ export class TasksService {
     });
   }
 
-  update(id: number, updateTaskDto: Prisma.TaskUpdateInput, userId: number) {
+  update(id: number, updateTaskDto: UpdateTaskDto, userId: number) {
     return this.databaseService.task.update({
       where: { id, userId },
       data: updateTaskDto,
